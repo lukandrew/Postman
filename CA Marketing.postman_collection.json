@@ -1,0 +1,666 @@
+{
+	"info": {
+		"_postman_id": "5b1d2128-c3ce-41b9-97f8-f53fdbe91828",
+		"name": "CA Marketing",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Positive Tests",
+			"item": [
+				{
+					"name": "Add new address",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"var jsonData = pm.response.json();",
+									"pm.environment.set(\"id\", jsonData.id);",
+									"",
+									"if (responseCode.code === 200){",
+									"    tests[\"Backend is avaliable, response code is 200\"] = true;",
+									"} else if (responseCode.code === 401){",
+									"    tests[\"Not authorised, Check access token or Log in\"] = false;",
+									"} else if (responseCode.code === 403){",
+									"    tests[\"forbiden\"] = false;",
+									"} else if (responseCode.code === 404){",
+									"    tests[\"Not Found. Check is the request correct\"] = false;",
+									"} else if (responseCode.code === 422){",
+									"    tests[\"The instance is not valid\"] = false;",
+									"} else {",
+									"    tests[\"Something went wrong. Check response body\"] = false;",
+									"}",
+									"",
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(\"Response Time is less than 200ms\", function () {",
+									"    pm.expect(pm.response.responseTime).to.be.below(500);",
+									"});",
+									"",
+									"pm.test(\"Response Body Size is less than 46B\", function () {",
+									"    pm.expect(pm.response.responseSize).to.be.below(46);",
+									"});",
+									"",
+									"pm.test(\"Content-Type is present\", function () {",
+									"    pm.response.to.have.header(\"Connection\", 'keep-alive');",
+									"    pm.response.to.have.header(\"Server\", 'Pepyaka/1.15.10');",
+									"    pm.response.to.have.header(\"Content-Type\", 'application/json;charset=utf-8');",
+									"});",
+									"",
+									"pm.test(\"Body include 'id'\", function () {",
+									"    pm.expect(pm.response.text()).to.include(\"id\");",
+									"});",
+									"",
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"pm.environment.unset(\"id\");",
+									"pm.environment.unset(\"company\")",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "{{api_key}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n   \"address\":{\n      \"fullName\":{\n         \"firstName\":\"Andy\",\n         \"lastName\":\"Stark\"\n      },\n      \"company\":\"Stark Inc\",\n      \"taxInfo\":{\n         \"id\":null,\n         \"type\":null\n      },\n      \"addressLine1\":\"8609 244th Street Southwest\",\n      \"addressLine2\":null,\n      \"street\":{\n         \"name\":null,\n         \"number\":null\n      },\n      \"city\":\"Edmonds\",\n      \"country\":\"USA\",\n      \"subdivision\":\"WA\",\n      \"zipCode\":\"98026\",\n      \"phoneNumber\":\"3069589586\",\n      \"location\":{\n         \"latitude\":47.7779756,\n         \"longitude\":-122.349236\n      }\n   },\n   \"setAsDefault\":false\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}",
+							"host": [
+								"{{base_url}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Check all addresses",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"if (responseCode.code === 200){",
+									"    tests[\"Backend is avaliable, response code is 200\"] = true;",
+									"} else if (responseCode.code === 401){",
+									"    tests[\"Not authorised, Check access token or Log in\"] = false;",
+									"} else if (responseCode.code === 403){",
+									"    tests[\"forbiden\"] = false;",
+									"} else if (responseCode.code === 404){",
+									"    tests[\"Not Found. Check is the request correct\"] = false;",
+									"} else if (responseCode.code === 422){",
+									"    tests[\"The instance is not valid\"] = false;",
+									"} else {",
+									"    tests[\"Something went wrong. Check response body\"] = false;",
+									"}",
+									"",
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(\"Response time is less than 200ms\", function () {",
+									"    pm.expect(pm.response.responseTime).to.be.below(300);",
+									"});",
+									"",
+									"pm.test(\"New ID is present in the list\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    for (let i = 0; i < jsonData.length; i++) {",
+									"        pm.expect(jsonData.addresses[i].id).to.eql(pm.variables.get(\"id\"));",
+									"    }",
+									"});",
+									"",
+									"pm.test(\"Full Name is present in the list\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    for (let i = 0; i < jsonData.length; i++) {",
+									"        pm.expect(jsonData.addresses[i].fullName.firstName).to.eql(\"Andy\");",
+									"        pm.expect(jsonData.addresses[i].fullName.lastName).to.eql(\"Stark\");",
+									"    }",
+									"});",
+									"",
+									"pm.test(\"Country is present in the list\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    for (let i = 0; i < jsonData.length; i++) {",
+									"        pm.expect(jsonData.addresses[i].country).to.eql(\"USA\");",
+									"    }",
+									"});",
+									"",
+									"pm.test(\"Subdivision/State is present in the list\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    for (let i = 0; i < jsonData.length; i++) {",
+									"        pm.expect(jsonData.addresses[i].subdivision).to.eql(\"WA\");",
+									"    }",
+									"});",
+									"",
+									"pm.test(\"City is present in the list\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    for (let i = 0; i < jsonData.length; i++) {",
+									"        pm.expect(jsonData.addresses[i].city).to.eql(\"Edmonds\");",
+									"    }",
+									"});",
+									"",
+									"pm.test(\"zipCode is present in the list\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    for (let i = 0; i < jsonData.length; i++) {",
+									"        pm.expect(jsonData.addresses[i].zipCode).to.eql(\"98026\");",
+									"    }",
+									"});",
+									"",
+									"pm.test(\"phoneNumber is present in the list\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    for (let i = 0; i < jsonData.length; i++) {",
+									"        pm.expect(jsonData.addresses[i].phoneNumber).to.eql(\"3069589586\");",
+									"    }",
+									"});",
+									"",
+									"pm.test(\"Company is present in the list\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    for (let i = 0; i < jsonData.length; i++) {",
+									"        pm.expect(jsonData.addresses[i].company).to.eql(\"Stark Inc\");",
+									"    }",
+									"});",
+									"",
+									"pm.test(\"Address is present in the list\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    for (let i = 0; i < jsonData.length; i++) {",
+									"        pm.expect(jsonData.addresses[i].addressLine1).to.eql(\"8609 244th Street Southwest\");",
+									"    }",
+									"});",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "{{api_key}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}",
+							"host": [
+								"{{base_url}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Check addresses by ID",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"if (responseCode.code === 200){",
+									"    tests[\"Backend is avaliable, response code is 200\"] = true;",
+									"} else if (responseCode.code === 401){",
+									"    tests[\"Not authorised, Check access token or Log in\"] = false;",
+									"} else if (responseCode.code === 403){",
+									"    tests[\"forbiden\"] = false;",
+									"} else if (responseCode.code === 404){",
+									"    tests[\"Not Found. Check is the request correct\"] = false;",
+									"} else if (responseCode.code === 422){",
+									"    tests[\"The instance is not valid\"] = false;",
+									"} else {",
+									"    tests[\"Something went wrong. Check response body\"] = false;",
+									"}",
+									"",
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"pm.test(\"Response time is less than 200ms\", function () {",
+									"    pm.expect(pm.response.responseTime).to.be.below(300);",
+									"});",
+									"",
+									"pm.test(\"ID is correct\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.address.id).to.eql(pm.variables.get(\"id\"));",
+									"});",
+									"",
+									"pm.test(\"Full Name is correct\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.address.fullName.firstName).to.eql(\"Andy\");",
+									"    pm.expect(jsonData.address.fullName.lastName).to.eql(\"Stark\");",
+									"});",
+									"",
+									"pm.test(\"Country is correct\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.address.country).to.eql(\"USA\");",
+									"});",
+									"",
+									"pm.test(\"Subdivision/State is correct\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.address.subdivision).to.eql(\"WA\");",
+									"});",
+									"",
+									"pm.test(\"City is correct\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.address.city).to.eql(\"Edmonds\");",
+									"});",
+									"",
+									"pm.test(\"zipCode is correct\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.address.zipCode).to.eql(\"98026\");",
+									"});",
+									"",
+									"pm.test(\"phoneNumber is correct\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.address.phoneNumber).to.eql(\"3069589586\");",
+									"});",
+									"",
+									"pm.test(\"Company is correct\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.address.company).to.eql(\"Stark Inc\");",
+									"});",
+									"",
+									"pm.test(\"Address is correct\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.address.addressLine1).to.eql(\"8609 244th Street Southwest\");",
+									"});",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "{{api_key}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/?id={{id}}",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								""
+							],
+							"query": [
+								{
+									"key": "id",
+									"value": "{{id}}"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Edit address by ID",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"if (responseCode.code === 200){",
+									"    tests[\"Backend is avaliable, response code is 200\"] = true;",
+									"} else if (responseCode.code === 401){",
+									"    tests[\"Not authorised, Check access token or Log in\"] = false;",
+									"} else if (responseCode.code === 403){",
+									"    tests[\"forbiden\"] = false;",
+									"} else if (responseCode.code === 404){",
+									"    tests[\"Not Found. Check is the request correct\"] = false;",
+									"} else if (responseCode.code === 422){",
+									"    tests[\"The instance is not valid\"] = false;",
+									"} else {",
+									"    tests[\"Something went wrong. Check response body\"] = false;",
+									"}",
+									"",
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(\"Response time is less than 200ms\", function () {",
+									"    pm.expect(pm.response.responseTime).to.be.below(300);",
+									"});",
+									"",
+									"pm.test(\"Address has been updated OK\", function() {",
+									"    pm.response.to.not.be.error;",
+									"    pm.response.to.be.withBody;",
+									"    pm.response.to.be.json;",
+									"    pm.response.to.not.have.jsonBody(\"error\");",
+									"    pm.response.to.have.jsonBody({});",
+									"})"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"pm.environment.set(\"company\", \"Google-\" + new Date().getTime())"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "PATCH",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "{{api_key}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"address\": {\n        \"id\": \"{{id}}\",\n        \"fullName\": {\n            \"firstName\": \"Tony\",\n            \"lastName\": \"Stark\"\n        },\n        \"company\": \"{{company}}\",\n        \"taxInfo\": {\n            \"id\": null,\n            \"type\": null\n        },\n        \"addressLine1\": \"8609 244th Street Southwest\",\n        \"addressLine2\": null,\n        \"street\": {\n            \"name\": null,\n            \"number\": null\n        },\n        \"city\": \"Edmonds\",\n        \"country\": \"USA\",\n        \"subdivision\": \"WA\",\n        \"zipCode\": \"98026\",\n        \"phoneNumber\": \"3069589586\",\n        \"location\": {\n            \"latitude\": 47.7779756,\n            \"longitude\": -122.349236\n        }\n    },\n    \"setAsDefault\": true,\n    \"fieldMask\": {\n        \"paths\": [\n            \"fullName.firstName\",\n            \"fullName.lastName\",\n            \"company\",\n            \"addressLine1\",\n            \"addressLine2\",\n            \"city\",\n            \"country\",\n            \"subdivision\",\n            \"zipCode\",\n            \"phoneNumber\",\n            \"location.latitude\",\n            \"location.longitude\",\n            \"setAsDefault\"\n        ]\n    }\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/{{id}}",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"{{id}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Check addresses after PATCH by ID",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"if (responseCode.code === 200){",
+									"    tests[\"Backend is avaliable, response code is 200\"] = true;",
+									"} else if (responseCode.code === 401){",
+									"    tests[\"Not authorised, Check access token or Log in\"] = false;",
+									"} else if (responseCode.code === 403){",
+									"    tests[\"forbiden\"] = false;",
+									"} else if (responseCode.code === 404){",
+									"    tests[\"Not Found. Check is the request correct\"] = false;",
+									"} else if (responseCode.code === 422){",
+									"    tests[\"The instance is not valid\"] = false;",
+									"} else {",
+									"    tests[\"Something went wrong. Check response body\"] = false;",
+									"}",
+									"",
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"pm.test(\"Response time is less than 200ms\", function () {",
+									"    pm.expect(pm.response.responseTime).to.be.below(300);",
+									"});",
+									"",
+									"pm.test(\"ID is correct\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.address.id).to.eql(pm.variables.get(\"id\"));",
+									"});",
+									"",
+									"pm.test(\"Full Name is correct\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.address.fullName.firstName).to.eql(\"Tony\");",
+									"    pm.expect(jsonData.address.fullName.lastName).to.eql(\"Stark\");",
+									"});",
+									"",
+									"pm.test(\"Country is correct\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.address.country).to.eql(\"USA\");",
+									"});",
+									"",
+									"pm.test(\"Subdivision/State is correct\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.address.subdivision).to.eql(\"WA\");",
+									"});",
+									"",
+									"pm.test(\"City is correct\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.address.city).to.eql(\"Edmonds\");",
+									"});",
+									"",
+									"pm.test(\"zipCode is correct\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.address.zipCode).to.eql(\"98026\");",
+									"});",
+									"",
+									"pm.test(\"phoneNumber is correct\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.address.phoneNumber).to.eql(\"3069589586\");",
+									"});",
+									"",
+									"pm.test(\"Company is correct\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.address.company).to.eql(pm.environment.get(\"company\"));",
+									"});",
+									"",
+									"pm.test(\"Address is correct\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.address.addressLine1).to.eql(\"8609 244th Street Southwest\");",
+									"});",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "{{api_key}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/{{id}}",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"{{id}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Delete addresses by ID",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"if (responseCode.code === 200){",
+									"    tests[\"Backend is avaliable, response code is 200\"] = true;",
+									"} else if (responseCode.code === 401){",
+									"    tests[\"Not authorised, Check access token or Log in\"] = false;",
+									"} else if (responseCode.code === 403){",
+									"    tests[\"forbiden\"] = false;",
+									"} else if (responseCode.code === 404){",
+									"    tests[\"Not Found. Check is the request correct\"] = false;",
+									"} else if (responseCode.code === 422){",
+									"    tests[\"The instance is not valid\"] = false;",
+									"} else {",
+									"    tests[\"Something went wrong. Check response body\"] = false;",
+									"}",
+									"",
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(\"Address has been delited OK\", function() {",
+									"    pm.response.to.not.be.error;",
+									"    pm.response.to.be.withBody;",
+									"    pm.response.to.be.json;",
+									"    pm.response.to.not.have.jsonBody(\"error\");",
+									"    pm.response.to.have.jsonBody({});",
+									"})"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "{{api_key}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/{{id}}",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"{{id}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Check addresses after DELETE by ID",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"if (responseCode.code === 200){",
+									"    tests[\"Backend is avaliable, response code is 200\"] = false;",
+									"} else if (responseCode.code === 400){",
+									"    tests[\"Code 400 Bad Request\"] = true;",
+									"} else if (responseCode.code === 401){",
+									"    tests[\"Not authorised, Check access token or Log in\"] = false;",
+									"} else if (responseCode.code === 403){",
+									"    tests[\"forbiden\"] = false;",
+									"} else if (responseCode.code === 404){",
+									"    tests[\"Not Found. Check is the request correct\"] = false;",
+									"} else if (responseCode.code === 422){",
+									"    tests[\"The instance is not valid\"] = false;",
+									"} else {",
+									"    tests[\"Something went wrong. Check response body\"] = false;",
+									"}",
+									"",
+									"pm.test(\"Error message\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.message).to.eql(\"cant_find_address_by_id, details: {\\\"cant_find\\\":\\\"address_id: \" + pm.variables.get(\"id\") + \"\\\"}\");",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "{{api_key}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/{{id}}",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"{{id}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Delete addresses by ID 2nd time",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"if (responseCode.code === 200){",
+									"    tests[\"Backend is avaliable, response code is 200\"] = false;",
+									"} else if (responseCode.code === 400){",
+									"    tests[\"Code 400 Bad Request\"] = true;",
+									"} else if (responseCode.code === 401){",
+									"    tests[\"Not authorised, Check access token or Log in\"] = false;",
+									"} else if (responseCode.code === 403){",
+									"    tests[\"forbiden\"] = false;",
+									"} else if (responseCode.code === 404){",
+									"    tests[\"Not Found. Check is the request correct\"] = false;",
+									"} else if (responseCode.code === 422){",
+									"    tests[\"The instance is not valid\"] = false;",
+									"} else {",
+									"    tests[\"Something went wrong. Check response body\"] = false;",
+									"}",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "{{api_key}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/{{id}}",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"{{id}}"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		}
+	]
+}
