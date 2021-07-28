@@ -1,2 +1,2 @@
 # Postman
-Repository included Postman API tests example from QASV
+Repository included Postman API tests examples for QASV
